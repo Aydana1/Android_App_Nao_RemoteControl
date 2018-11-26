@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.net.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -24,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     protected int my_backlog = 5;
     protected ServerSocket serverSocket;
     Socket Robot = null;
-
 
     TextView currEmotion, naoText;
     EditText inputText;
@@ -41,10 +39,12 @@ public class MainActivity extends AppCompatActivity {
         btn_server = (Button) findViewById(R.id.btn_server);
         btn_stop = (Button) findViewById(R.id.btn_stop);
 
+        // this is for enabling asynchronous run of server threads in main activity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         try {
+            // server connecting to the port
             serverSocket = new ServerSocket(7200, my_backlog);
             Log.d("m", "LISTENING TO PORT ");
             System.out.println("TCP socket listening on port " + 7200);
@@ -54,17 +54,20 @@ public class MainActivity extends AppCompatActivity {
             se.printStackTrace();
         }
 
+        // the server is ready to accept client sockets
         startServer();
     }
 
 
     public void startServer() {
 
+        // when START button is clicked
         btn_server.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
+                // create a thread for each socket
                 new Thread(new Runnable() {
 
                     @Override
@@ -72,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
                         while (true) {
                             try {
-                                Socket socket = serverSocket.accept();
+                                Socket socket = serverSocket.accept(); // accepting the client
                                 Robot = socket;
                                 System.out.println("CLIENT: " +Robot);
 
@@ -91,11 +94,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // sending messages to the client asynchrounously
     private class SocketServerReplyThread extends AsyncTask<Void, Void, Void> {
 
         private Socket hostThreadSocket;
         private String msg;
 
+        // server connects to socket to send it the message
         SocketServerReplyThread(Socket socket, CharSequence sendText) {
             hostThreadSocket = socket;
             msg = sendText.toString();
@@ -108,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 outputStream = hostThreadSocket.getOutputStream();
                 PrintStream printStream = new PrintStream(outputStream);
-                printStream.print(msgReply);
+                printStream.print(msgReply);  // actually sending the message to the client
                 printStream.close();
 
             } catch (IOException e) {
@@ -119,12 +124,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void moveToKaz(View v) {
-        setContentView(R.layout.kazmode);
+        setContentView(R.layout.kazmode);  // set current screen to kazmode
         startKazMode();
     }
 
     public void moveToRus(View v) {
-        setContentView(R.layout.rusmode);
+        setContentView(R.layout.rusmode); // set current screen to rusmode
         startKazMode();
     }
 
@@ -132,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         currEmotion = (TextView) findViewById(R.id.currEmotion);
 
+        // Emotions
         happyImgView = (ImageView) findViewById(R.id.happyImgView);
         sadImgView = (ImageView) findViewById(R.id.sadImgView);
         surprisedImgView = (ImageView) findViewById(R.id.surprisedImgView);
@@ -141,22 +147,24 @@ public class MainActivity extends AppCompatActivity {
         interestedImgView = (ImageView) findViewById(R.id.interestedImgView);
         boredImgView = (ImageView) findViewById(R.id.boredImgView);
 
+        // Actions
         followmeImg = (ImageView) findViewById(R.id.followmeImg);
         touchmeImg = (ImageView) findViewById(R.id.touchmeImg);
         standUpImg = (ImageView) findViewById(R.id.standUpImg);
         sitDownImg = (ImageView) findViewById(R.id.sitDownImg);
+
+        // Dances
         macarenaView = (ImageView) findViewById(R.id.macarenaView);
         taichi = (ImageView) findViewById(R.id.taichi);
         chasiki = (ImageView) findViewById(R.id.chasiki);
 
-
+        // When clicked on images these methods below are called
         happyImgView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currEmotion.setText("Happy");
                 sendText = "1";
-                showEmtions(Robot, sendText);
-                //Toast.makeText(MainActivity.this, "CLICKED!", Toast.LENGTH_LONG).show();
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -165,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Sad");
                 sendText = "2";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -174,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Surprised");
                 sendText = "3";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -183,8 +191,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Scared");
                 sendText = "4";
-                showEmtions(Robot, sendText);
-               // Toast.makeText(MainActivity.this, "You clicked on SCARED", Toast.LENGTH_LONG).show();
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -194,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Angry");
                 sendText = "5";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -203,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Shy");
                 sendText = "6";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -213,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Interested");
                 sendText = "7";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -222,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currEmotion.setText("Bored");
                 sendText = "8";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -232,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Follow me");
                 sendText = "9";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -242,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Touch me");
                 sendText = "10";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -252,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Standing");
                 sendText = "11";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -261,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Sitting");
                 sendText = "12";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -271,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Macarena");
                 sendText = "13";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -281,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Tai chi");
                 sendText = "14";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
@@ -292,32 +299,32 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 currEmotion.setText("Chasiki");
                 sendText = "15";
-                showEmtions(Robot, sendText);
+                showEmotions(Robot, sendText);
             }
         });
 
-
-
-
     }
 
-
+    // ENDING THE GAME AND SAYING BYE
     public void onEndGame(View v) {
 
         currEmotion.setText("Game ending");
         sendText = "17";
-        showEmtions(Robot, sendText);
+        showEmotions(Robot, sendText);
 
     }
 
+    // GREETING
     public void onStartGame(View v) {
         currEmotion.setText("Game starting...");
         sendText = "16";
-        showEmtions(Robot, sendText);
+        showEmotions(Robot, sendText);
     }
 
-    public void showEmtions(Socket Robot, CharSequence sendText) {
+    // SEND commands to the client based on messages from the server
+    public void showEmotions(Socket Robot, CharSequence sendText) {
         sendText = sendText + "\n";
+        // if client socket exists send the message
         if (Robot != null) {
             System.out.print("MESSAGE: " + sendText);
             SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(Robot, sendText);
@@ -338,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.kazmode);
     }
 
+    // STOPPING THE SERVER
     public void stopServer(View v) {
         try {
             stop();
